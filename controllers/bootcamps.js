@@ -11,7 +11,7 @@ exports.getBootcamps = async (req, res, next) => {
             data: bootcamps
         });
     } catch (error) {
-        res.status(400).json({status:'error'});
+        next(error);
     }
     
 }
@@ -23,7 +23,9 @@ exports.getBootcamp = async (req, res, next) => {
     try {
         const bootcamp = await Bootcamp.findById(req.params.id);
         if(!bootcamp){
-             return res.status(400).json({status:'error'});
+             return res.status(400).json({
+                status:'error'
+            });
         }
         
         res.status(200).json({
@@ -32,7 +34,7 @@ exports.getBootcamp = async (req, res, next) => {
         });
         
     } catch (error) {
-        res.status(400).json({status:'error'});
+        next(error);
     }
     
 }
@@ -49,9 +51,7 @@ exports.createBootcamp = async (req, res, next) => {
             data: bootcamp
         });
     } catch (error) {
-        res.status(400).json({
-            status:'error'
-        })
+        next(error);
     }
 
     
@@ -68,13 +68,15 @@ exports.updateBootcamp = async (req, res, next) => {
             runValidators: true
         });
         if(!bootcamp){
-            return res.status(400).json({status:'error'});
+            return res.status(400).json({
+                status:'error'
+            });
         }
         
         res.status(200).json({status:'success', data: bootcamp});
 
     } catch (error) {
-        res.status(400).json({status:'error'});
+        next(error);
     }
     
 }
@@ -86,12 +88,14 @@ exports.deleteBootcamp = async (req, res, next) => {
     try {
         const bootcamp = await Bootcamp.findByIdAndDelete(req.params.id);
         if(!bootcamp){
-            return res.status(400).json({status:'error'});
+            return res.status(400).json({
+                status:'error'
+            });
         }
         
         res.status(200).json({status:'success', data: {}});
 
     } catch (error) {
-        res.status(400).json({status:'error'});
+        next(error);
     }
 };

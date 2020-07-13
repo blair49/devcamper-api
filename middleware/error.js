@@ -1,10 +1,34 @@
+const ErrorResponse = require("../utils/errorResponse");
+
 const errorHandler = (err, req, res, next) => {
 
-    console.log(err.stack);
+    let error = { ...err };
+    let message = '';
+    error.message = err.message;
+    //Log to console for dev
+    console.log(err);
 
-    res.status(500).json({
+    //Mongoose bad objectID
+    if(err.name === 'CastError'){
+        message = `Resource not found with id ${err.value}`;
+        error = new ErrorResponse(message, 404);
+    }
+
+    //Mongoose duplicate key
+    if(err.code === 11000){
+        message = 'Duplicate field value entered';
+        error = new ErrorResponse(message, 400);
+    }
+
+    //Mongoose validation error
+    if(err.name === 'ValidationError'){
+        const message = Object.values(err.errors).map(val => val.message);
+        error = new ErrorResponse(message, 400);
+    }
+    
+    res.status(error.statusCode || 500).json({
         status:'error',
-        error: err.message 
+        error: error.message || 'Server Error'
     });
 };
 

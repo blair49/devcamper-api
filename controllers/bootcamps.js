@@ -3,12 +3,46 @@ const Bootcamp = require('../models/Bootcamp');
 const asyncHandler = require('../middleware/async');
 const geocoder = require('../utils/geocoder');
 
+
 //@desc Get all bootcamps
 //@route GET /api/v1/bootcamps
 //@access Public
 exports.getBootcamps = asyncHandler( async (req, res, next) => {
+    let query;
+    // Create copy of request query
+    const reqQuery = {...req.query};
     
-    const bootcamps = await Bootcamp.find();
+    // Fields to exclude
+    const removeFields = ['select', 'sort'];
+
+    // Loop over removeFields and delete them from query
+    removeFields.forEach(param => delete reqQuery[param]);
+
+    //Crate query string
+    let queryStr = JSON.stringify(reqQuery);
+    
+    // Create operators like {$gt, $gte etc}
+    queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, (match) => `$${match}`);
+    
+    // Find resource
+    query = Bootcamp.find(JSON.parse(queryStr));
+    
+    // Select fields
+    if(req.query.select){
+        const fields = req.query.select.split(',').join(' ');
+        query = query.select(fields);
+    }
+
+    // Sort based on fields
+    if(req.query.sort){
+        const sortBy = req.query.sort.split(',').join(' ');
+        query = query.sort(sortBy);
+    } else{
+        query = query.sort('-createdOn')
+    }
+
+    // Execute request
+    const bootcamps = await query;
     res.status(200).json({
         status: 'success',
         count: bootcamps.length,

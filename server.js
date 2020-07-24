@@ -1,4 +1,5 @@
-const experess = require('express');
+const path = require('path');
+const express = require('express');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
 const connectDB = require('./config/db');
@@ -12,16 +13,23 @@ connectDB();
 //route files
 const bootcamps = require('./routes/bootcamps');
 const courses = require('./routes/courses');
+const fileUpload = require('express-fileupload');
 
-const app = experess();
+const app = express();
 
 //Body parser
-app.use(experess.json());
+app.use(express.json());
 
 //Dev logging middleware
 if(process.env.NODE_ENV === 'development'){
     app.use(morgan('dev'));
 }
+
+//File upload middleware
+app.use(fileUpload());
+
+//Set static folder
+app.use(express.static(path.join(__dirname, 'public')));
 
 //Mount routers
 app.use('/api/v1/bootcamps', bootcamps);

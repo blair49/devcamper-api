@@ -14,10 +14,13 @@ const {
  // Include other resource routers
  const courseRouter = require('./courses');
 
+const Bootcamp = require('../models/Bootcamp');
+ const advancedQuery = require('../middleware/advancedQuery');
+
  // Re-route to other resource routers
 router.use('/:bootcampId/courses', courseRouter);
 
-router.route('/').get(getBootcamps)
+router.route('/').get(advancedQuery(Bootcamp, 'courses'), getBootcamps)
                  .post(createBootcamp);
 
 router.route('/:id').get(getBootcamp)
